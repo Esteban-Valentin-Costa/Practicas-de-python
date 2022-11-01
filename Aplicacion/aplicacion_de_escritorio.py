@@ -8,7 +8,7 @@ import sqlite3
 from unicodedata import name
 
 
-"""esta es la prueba de github""""
+
 
 
 """  ESTA ES LA FORMA DE 
@@ -55,7 +55,7 @@ class Product:
         ttk.Button(text= "Delet",command= self.delete_product).grid(row=5 ,column = 0, sticky= W + E)
         
         #edit element
-        ttk.Button(text= "Edit").grid(row=5 ,column = 1, sticky= W + E)
+        ttk.Button(text= "Edit", command = self.edit_product).grid(row=5 ,column = 1, sticky= W + E)
         
 
         self.get_products()
@@ -96,14 +96,56 @@ class Product:
         self.get_products()
         
     def delete_product (self):
+        self.message["text"] = ""
         try:
-            self.tree.item(self.tree.selection())["text"]
+            self.tree.item(self.tree.selection())["text"][0]
+        except IndexError as e:
+            self.message["text"] = "Please select a record"
+            return
+        self.message["text"] = ""
+        name = self.tree.item(self.tree.selection())["text"]
+        query = "DELETE FROM product WHERE name = ?"
+        self.run_query(query,(name,))
+        self.message["text"] = "Record {} delated successfully".format(name)
+        self.get_products()
+    
+    def edit_product (self):
+        self.message["text"] = ""
+        try:
+            self.tree.item(self.tree.selection())["text"][0]
         except IndexError as e:
             self.message["text"] = "Please select a record"
             return
         name = self.tree.item(self.tree.selection())["text"]
-        query = "DELETE FROM product WHEAR name = ?"
-        self.run_query(query,(name))
+        old_price = self.tree.item(self.tree.selection())["values"] [0]
+        self.edit_wind = Toplevel()
+        self.edit_wind.title = "Edit product"
+
+        ####### old Name #######
+        Label(self.edit_wind, text = "Old Name: ").grid(row = 0, column = 1)
+        Entry(self.edit_wind, textvariabl= StringVar(self.edit_wind, value = name),state = "readonly").grid(row = 0, column = 2)
+        ####### New Name ##########
+        Label(self.edit_wind, text = "New Name: ").grid(row = 1, column = 1)
+        new_name = Entry(self.edit_wind)
+        new_name.grid(row = 1, column = 2)
+
+        ###### Old preci ######
+        Label(self.edit_wind, text = "Old Preci: ").grid(row = 3, column = 1 )
+        Entry(self.edit_wind,textvariabl= StringVar(self.edit_wind, value = old_price),state = "readonly").grid(row = 3, column = 2)
+        ###### New preci #####
+        Label(self.edit_wind, text = "New preci: ").grid (row = 4, column = 1)
+        new_price = Entry(self.edit_wind)
+        new_price.grid(row = 4, column = 2)
+
+
+
+        
+
+
+
+
+
+
         
 
 if __name__ == "__main__":
